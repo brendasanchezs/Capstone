@@ -4,6 +4,7 @@ import psycopg2
 from airflow import DAG
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.dummy_operator import DummyOperator
 from airflow.hooks.postgres_hook import PostgresHook
 from datetime import timedelta
 from datetime import datetime
@@ -50,7 +51,7 @@ def csv_to_postgres():
         get_postgres_conn.commit()
 
 #Task 
-task1 = PostgresOperator(task_id = 'create_table',
+task1 = PostgresOperator(task_id = 'create_table_user_purchase',
                         sql="""
                         CREATE TABLE IF NOT EXISTS cities (    
                             LatD INTEGER,
@@ -68,10 +69,11 @@ task1 = PostgresOperator(task_id = 'create_table',
                             autocommit=True,
                             dag= dag)
 
-task2 = PythonOperator(task_id='csv_to_database',
+task2 = PythonOperator(task_id='csv_to_database_postgres',
                    provide_context=True,
                    python_callable=csv_to_postgres,
                    dag=dag)
+init = DummyOperator(task_id="Init", dag=dag)
+end = DummyOperator(task_id="End", dag=dag)
 
-
-task1 >> task2
+init >> task1 >> task2 >> end 
