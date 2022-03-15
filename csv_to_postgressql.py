@@ -28,7 +28,7 @@ default_args = {
 }
 
 #name the DAG and configuration
-dag = DAG('insert_data_postgres',
+dag = DAG('csv_to_postgres',
           default_args=default_args,
           schedule_interval='@once',
           catchup=False)
